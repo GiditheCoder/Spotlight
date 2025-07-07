@@ -1,39 +1,55 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import InitialLayout from "@/components/InitialLayout";
+import ClerkandConvexProvider from "@/providers/ClerkandConvexProvider";
+import { Slot, SplashScreen } from "expo-router";
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  const [fontsLoaded] = useFonts({
+    "JetBrainsMono-Medium": require("../assets/fonts/JetBrainsMono-Medium.ttf"),
   });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) await SplashScreen.hideAsync();
+  }, [fontsLoaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ClerkandConvexProvider>
+      <SafeAreaProvider>
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: "black" }}
+          onLayout={onLayoutRootView}
+        >
+          <InitialLayout>
+            <Slot /> 
+          </InitialLayout>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </ClerkandConvexProvider>
   );
 }
+
+
+
+  {/* <Stack screenOptions={{headerShown: false}} />  */}
+
+  
+// testout the tokencache after i am done
+// this is the authentication stage
+
+// const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
+
+// if (!publishableKey) {
+//   throw new Error(
+//     'Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env',
+//   )
+// }
+
+
+// issuerurl
+// https://smooth-hen-62.clerk.accounts.dev
